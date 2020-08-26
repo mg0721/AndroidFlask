@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        String postUrl = "http://" + ipv4Address + ":" + portNumber + "/";
+        String postUrl = "http://" + ipv4Address + ":" + portNumber + "/upload";
 
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
 
@@ -119,7 +119,9 @@ public class MainActivity extends AppCompatActivity {
             }
             byte[] byteArray = stream.toByteArray();
 
-            multipartBodyBuilder.addFormDataPart("image" + i, "Android_Flask_" + i + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
+            multipartBodyBuilder
+                        .addFormDataPart("image", "Android_Flask_" + i + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray))
+                        .addFormDataPart("dst", "from_android.jpg");
         }
 
         RequestBody postBodyImage = multipartBodyBuilder.build();
