@@ -42,7 +42,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:id="@+id/IPAddress"
-            android:text="192.168.43.177"
+            android:text="15.165.183.205"
             android:singleLine="true"
             android:textStyle="bold"/>
     </LinearLayout>
@@ -63,7 +63,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:id="@+id/portNumber"
-            android:text="5000"
+            android:text="8000"
             android:inputType="number"
             android:singleLine="true"
             android:textStyle="bold"/>

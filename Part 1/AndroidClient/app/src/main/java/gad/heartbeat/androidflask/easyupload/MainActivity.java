@@ -120,8 +120,7 @@ public class MainActivity extends AppCompatActivity {
             byte[] byteArray = stream.toByteArray();
 
             multipartBodyBuilder
-                        .addFormDataPart("image", "Android_Flask_" + i + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray))
-                        .addFormDataPart("dst", "from_android.jpg");
+                        .addFormDataPart("image", "Android_Flask_" + i + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
         }
 
         RequestBody postBodyImage = multipartBodyBuilder.build();
