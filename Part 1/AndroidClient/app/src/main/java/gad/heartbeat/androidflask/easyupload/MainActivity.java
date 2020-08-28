@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        String postUrl = "http://" + ipv4Address + ":" + portNumber + "/upload";
+        String postUrl = "http://" + ipv4Address + ":" + portNumber + "/imgpredict";
 
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
 
