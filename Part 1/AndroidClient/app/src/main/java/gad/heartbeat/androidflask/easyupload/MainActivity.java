@@ -161,16 +161,19 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onResponse(Call call, final Response response) throws IOException {
-                // In order to access the TextView inside the UI thread, the code is executed inside runOnUiThread()
+                String temporal = null;
+                try {
+                    temporal = response.body().string();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                final String response_str = temporal;
+
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         TextView responseText = findViewById(R.id.responseText);
-                        try {
-                            responseText.setText("Server's Response\n" + response.body().string());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
+                        responseText.setText("Server's Response :\n" + response_str);
                     }
                 });
             }
