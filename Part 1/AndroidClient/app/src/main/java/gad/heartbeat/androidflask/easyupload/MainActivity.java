@@ -103,6 +103,8 @@ public class MainActivity extends AppCompatActivity {
         String ipv4Address = ipv4AddressView.getText().toString();
         EditText portNumberView = findViewById(R.id.portNumber);
         String portNumber = portNumberView.getText().toString();
+        EditText appNameView = findViewById(R.id.appName);
+        String appName = appNameView.getText().toString();
 
         Matcher matcher = IP_ADDRESS.matcher(ipv4Address);
         if (!matcher.matches()) {
@@ -113,6 +115,8 @@ public class MainActivity extends AppCompatActivity {
         String postUrl = "http://" + ipv4Address + ":" + portNumber + "/predict";
 
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+
+        multipartBodyBuilder.addFormDataPart("name", appName);
 
         if (imagesSelected == true) {
             for (int i = 0; i < selectedImagesPaths.size(); i++) {
