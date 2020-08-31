@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     final int SELECT_MULTIPLE_IMAGES = 1;
     ArrayList<String> selectedImagesPaths; // Paths of the image(s) selected by the user.
     boolean imagesSelected = false; // Whether the user selected at least an image or not.
-    boolean NirSelected = false;
+    boolean nirSelected = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,16 +85,18 @@ public class MainActivity extends AppCompatActivity {
 
     public void connectServer(View v) {
         TextView responseText = findViewById(R.id.responseText);
-
-        if (NirSelected == false) {
-            if (imagesSelected == false) { // This means no image is selected and thus nothing to upload.
-                responseText.setText("No Image Selected to Upload. Select Image(s) and Try Again.");
-                return;
-            }
-            responseText.setText("Sending the Files. Please Wait ...");
+        if (nirSelected == true && imagesSelected == true) {
+            responseText.setText("Sending both the NIR and image data. Please Wait ...");
+        }
+        else if (nirSelected == true && imagesSelected == false) {
+            responseText.setText("Sending the NIR data. Please Wait ...");
+        }
+        else if (nirSelected == false && imagesSelected == true) {
+            responseText.setText("Sending the Image files. Please Wait ...");
         }
         else {
-            responseText.setText("Sending NIR data. Please Wait ...");
+            responseText.setText("No Image and NIR data Selected to Upload. Try Again.");
+            return;
         }
 
         EditText ipv4AddressView = findViewById(R.id.IPAddress);
@@ -108,17 +110,11 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        String postUrl = null;
-        if (NirSelected == false) {
-            postUrl = "http://" + ipv4Address + ":" + portNumber + "/imgpredict";
-        }
-        else {
-            postUrl = "http://" + ipv4Address + ":" + portNumber + "/nirpredict";
-        }
+        String postUrl = "http://" + ipv4Address + ":" + portNumber + "/predict";
 
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
 
-        if (NirSelected == false) {
+        if (imagesSelected == true) {
             for (int i = 0; i < selectedImagesPaths.size(); i++) {
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inPreferredConfig = Bitmap.Config.RGB_565;
@@ -138,26 +134,18 @@ public class MainActivity extends AppCompatActivity {
                         .addFormDataPart("image", "Android_Flask_" + i + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
             }
         }
-        else {
+        if (nirSelected == true) {
             String nir_data[] = {
-                    "1.0653302594092071",
-                    "0.9251701988538019",
-                    "0.8478501700835429",
-                    "0.9319784755237448",
-                    "0.9679930414868316",
-                    "0.7694431805701555",
-                    "0.6850236277717194",
-                    "0.7605773468488321",
-                    "0.9160300524022982",
-                    "0.8997849275488258",
-                    "0.7905291593834419",
-                    "0.8209230286632945",
-                    "0.9821774506005424",
+                    "0.0", "0.0", "0.0", // Three dummy values.
+                    "1.0653302594092071", "0.9251701988538019", "0.8478501700835429", "0.9319784755237448", "0.9679930414868316",
+                    "0.7694431805701555", "0.6850236277717194", "0.7605773468488321", "0.9160300524022982", "0.8997849275488258",
+                    "0.7905291593834419", "0.8209230286632945", "0.9821774506005424", // Use
             };
             for (int i = 0; i < nir_data.length; i++) {
                 multipartBodyBuilder.addFormDataPart("v", nir_data[i]);
             }
         }
+
         RequestBody postBodyImage = multipartBodyBuilder.build();
         postRequest(postUrl, postBodyImage);
     }
@@ -218,20 +206,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void useNIR(View v) {
-        Button selectImageButton = findViewById(R.id.selectImageButton);
         TextView checkNIR = findViewById(R.id.checkNIR);
-        TextView numSelectedImages = findViewById(R.id.numSelectedImages);
-        if (NirSelected == false) {
-            numSelectedImages.setText("Image selection disabled.");
+        if (nirSelected == false) {
             checkNIR.setText("Use NIR data for test.");
-            NirSelected = true;
-            selectImageButton.setEnabled(false);
+            nirSelected = true;
         }
         else {
-            numSelectedImages.setText("Image selection enbled.");
-            checkNIR.setText("Not use NIR data.");
-            NirSelected = false;
-            selectImageButton.setEnabled(true);
+            checkNIR.setText("No NIR Data Selected.");
+            nirSelected = false;
         }
     }
 

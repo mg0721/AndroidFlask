@@ -30,14 +30,14 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Use NIR datas"
+        android:text="Use NIR Data."
         android:onClick="useNIR"
         android:textStyle="bold"/>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Not use NIR classifier."
+        android:text="No NIR Data Selected."
         android:id="@+id/checkNIR"
         android:textAlignment="center"
         android:textStyle="bold"
