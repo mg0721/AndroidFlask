@@ -19,6 +19,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     final int SELECT_MULTIPLE_IMAGES = 1;
     ArrayList<String> selectedImagesPaths; // Paths of the image(s) selected by the user.
     boolean imagesSelected = false; // Whether the user selected at least an image or not.
+    boolean NirSelected = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,11 +85,17 @@ public class MainActivity extends AppCompatActivity {
 
     public void connectServer(View v) {
         TextView responseText = findViewById(R.id.responseText);
-        if (imagesSelected == false) { // This means no image is selected and thus nothing to upload.
-            responseText.setText("No Image Selected to Upload. Select Image(s) and Try Again.");
-            return;
+
+        if (NirSelected == false) {
+            if (imagesSelected == false) { // This means no image is selected and thus nothing to upload.
+                responseText.setText("No Image Selected to Upload. Select Image(s) and Try Again.");
+                return;
+            }
+            responseText.setText("Sending the Files. Please Wait ...");
         }
-        responseText.setText("Sending the Files. Please Wait ...");
+        else {
+            responseText.setText("Sending NIR data. Please Wait ...");
+        }
 
         EditText ipv4AddressView = findViewById(R.id.IPAddress);
         String ipv4Address = ipv4AddressView.getText().toString();
@@ -100,36 +108,57 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        String postUrl = "http://" + ipv4Address + ":" + portNumber + "/imgpredict";
+        String postUrl = null;
+        if (NirSelected == false) {
+            postUrl = "http://" + ipv4Address + ":" + portNumber + "/imgpredict";
+        }
+        else {
+            postUrl = "http://" + ipv4Address + ":" + portNumber + "/nirpredict";
+        }
 
         MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder().setType(MultipartBody.FORM);
 
-        for (int i = 0; i < selectedImagesPaths.size(); i++) {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inPreferredConfig = Bitmap.Config.RGB_565;
+        if (NirSelected == false) {
+            for (int i = 0; i < selectedImagesPaths.size(); i++) {
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig = Bitmap.Config.RGB_565;
 
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            try {
-                // Read BitMap by file path.
-                Bitmap bitmap = BitmapFactory.decodeFile(selectedImagesPaths.get(i), options);
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-            }catch(Exception e){
-                responseText.setText("Please Make Sure the Selected File is an Image.");
-                return;
-            }
-            byte[] byteArray = stream.toByteArray();
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                try {
+                    // Read BitMap by file path.
+                    Bitmap bitmap = BitmapFactory.decodeFile(selectedImagesPaths.get(i), options);
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                } catch (Exception e) {
+                    responseText.setText("Please Make Sure the Selected File is an Image.");
+                    return;
+                }
+                byte[] byteArray = stream.toByteArray();
 
-            multipartBodyBuilder
+                multipartBodyBuilder
                         .addFormDataPart("image", "Android_Flask_" + i + ".jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray));
+            }
         }
-
+        else {
+            String nir_data[] = {
+                    "1.0653302594092071",
+                    "0.9251701988538019",
+                    "0.8478501700835429",
+                    "0.9319784755237448",
+                    "0.9679930414868316",
+                    "0.7694431805701555",
+                    "0.6850236277717194",
+                    "0.7605773468488321",
+                    "0.9160300524022982",
+                    "0.8997849275488258",
+                    "0.7905291593834419",
+                    "0.8209230286632945",
+                    "0.9821774506005424",
+            };
+            for (int i = 0; i < nir_data.length; i++) {
+                multipartBodyBuilder.addFormDataPart("v", nir_data[i]);
+            }
+        }
         RequestBody postBodyImage = multipartBodyBuilder.build();
-
-//        RequestBody postBodyImage = new MultipartBody.Builder()
-//                .setType(MultipartBody.FORM)
-//                .addFormDataPart("image", "androidFlask.jpg", RequestBody.create(MediaType.parse("image/*jpg"), byteArray))
-//                .build();
-
         postRequest(postUrl, postBodyImage);
     }
 
@@ -186,6 +215,24 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_MULTIPLE_IMAGES);
+    }
+
+    public void useNIR(View v) {
+        Button selectImageButton = findViewById(R.id.selectImageButton);
+        TextView checkNIR = findViewById(R.id.checkNIR);
+        TextView numSelectedImages = findViewById(R.id.numSelectedImages);
+        if (NirSelected == false) {
+            numSelectedImages.setText("Image selection disabled.");
+            checkNIR.setText("Use NIR data for test.");
+            NirSelected = true;
+            selectImageButton.setEnabled(false);
+        }
+        else {
+            numSelectedImages.setText("Image selection enbled.");
+            checkNIR.setText("Not use NIR data.");
+            NirSelected = false;
+            selectImageButton.setEnabled(true);
+        }
     }
 
     @Override
