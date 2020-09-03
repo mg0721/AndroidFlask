@@ -39,6 +39,13 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+class ButtonBoolean {
+    ButtonBoolean (boolean use_this) {
+        this.use_this = use_this;
+    }
+    boolean use_this;
+}
+
 public class MainActivity extends AppCompatActivity {
     private static final Pattern IP_ADDRESS
             = Pattern.compile(
@@ -50,6 +57,42 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<String> selectedImagesPaths; // Paths of the image(s) selected by the user.
     boolean imagesSelected = false; // Whether the user selected at least an image or not.
     boolean nirSelected = false;
+
+    ButtonBoolean use_button[] = {
+        new ButtonBoolean(false),
+        new ButtonBoolean(false),
+        new ButtonBoolean(false),
+        new ButtonBoolean(false),
+    };
+    String nir_names[] = {
+            "Cotton", "Poly", "Nylon", "Wool",
+    };
+    String nir_values[][] = {
+            {   // Cotton = 0
+                "0.0", "0.0"," 0.0",
+                "1.1417472634577899", "1.0093176660640792", "0.8650800891472363", "0.9409295926719259",
+                "1.0308508764203295", "0.8315421183927704", "0.6908137300721815", "0.7603202585573675",
+                "0.9803491382031694", "0.9692163976450652", "0.7883998093119339", "0.8173548210014507", "1.0534289035257653",
+            },
+            {   // Poly = 1
+                "0.0", "0.0"," 0.0",
+                "1.0229138551506973", "0.9276318319935382", "0.8615480860713960", "0.9117078522543232",
+                "0.9607702809830002", "0.8796931138898912", "0.8231811808692943", "0.8806130943636453",
+                "0.9715733316497253", "0.8614412026677674", "0.7865882726839345", "0.8284123436458455", "0.9862843858969391",
+            },
+            {   // Nylon = 2
+                "0.0", "0.0"," 0.0",
+                "1.031779502174239", "1.0596176776029846", "0.8994877943878947", "0.9215297006425996",
+                "0.9952985994891219", "0.9407565464329982", "0.7585812951134652", "0.7978918760099898",
+                "0.9840425531914893", "0.9782755099824032", "0.7546162402669633", "0.7733992079363212", "1.0098798915149167",
+            },
+            {   // Wool = 3
+                "0.0", "0.0"," 0.0",
+                "0.9261602189233769", "0.8326474095157507", "0.7605406180353721", "0.8128450272538879",
+                "0.8669184356557739", "0.7031080847859171", "0.6063509373214935", "0.6627246461975417",
+                "0.8181545552118189", "0.7614650996067867", "0.6320673764500239", "0.6527859467513625", "0.7915149166989539",
+            },
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,14 +182,12 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         if (nirSelected == true) {
-            String nir_data[] = {
-                    "0.0", "0.0", "0.0", // Three dummy values.
-                    "1.0653302594092071", "0.9251701988538019", "0.8478501700835429", "0.9319784755237448", "0.9679930414868316",
-                    "0.7694431805701555", "0.6850236277717194", "0.7605773468488321", "0.9160300524022982", "0.8997849275488258",
-                    "0.7905291593834419", "0.8209230286632945", "0.9821774506005424", // Use
-            };
-            for (int i = 0; i < nir_data.length; i++) {
-                multipartBodyBuilder.addFormDataPart("v", nir_data[i]);
+            for(int i = 0; i < use_button.length; i++) {
+                if (use_button[i].use_this == true) {
+                    for(int j = 0; j < nir_values[i].length; j++) {
+                        multipartBodyBuilder.addFormDataPart("v", nir_values[i][j]);
+                    }
+                }
             }
         }
 
@@ -209,15 +250,59 @@ public class MainActivity extends AppCompatActivity {
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_MULTIPLE_IMAGES);
     }
 
-    public void useNIR(View v) {
+    public void setFlag(int num, boolean set_true) {
+        for(int i = 0; i < use_button.length; i++) {
+            if (i == num && set_true == true) {
+                use_button[i].use_this = true;
+            }
+            else {
+                use_button[i].use_this = false;
+            }
+        }
+    }
+
+    public String get_values_string(int buttom_num){
+        String values_string = "";
+        for(int i = 0; i < nir_values[buttom_num].length; i++) {
+            int end_num = 6;
+            if (nir_values[buttom_num][i].length() < end_num) {
+                end_num = nir_values[buttom_num][i].length();
+            }
+            values_string += ("[" + i + "]" + nir_values[buttom_num][i].substring(0, end_num) + ", ");
+        }
+        return values_string;
+    }
+
+    public void useNirButton(View v) {
+        int buttom_num = -1;
         TextView checkNIR = findViewById(R.id.checkNIR);
-        if (nirSelected == false) {
-            checkNIR.setText("Use NIR data for test.");
+        switch (v.getId()) {
+            case (R.id.button0):
+                buttom_num = 0;
+                break;
+            case (R.id.button1):
+                buttom_num = 1;
+                break;
+            case (R.id.button2):
+                buttom_num = 2;
+                break;
+            case (R.id.button3):
+                buttom_num = 3;
+                break;
+            default:
+                buttom_num = -1;
+                break;
+        }
+        if (use_button[buttom_num].use_this == false) {
             nirSelected = true;
+            String values_string = get_values_string(buttom_num);
+            checkNIR.setText(nir_names[buttom_num] + ", " + values_string);
+            setFlag(buttom_num, true);
         }
         else {
-            checkNIR.setText("No NIR Data Selected.");
             nirSelected = false;
+            checkNIR.setText("No NIR Data Selected.");
+            setFlag(buttom_num, false);
         }
     }
 
@@ -366,6 +451,3 @@ public class MainActivity extends AppCompatActivity {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 }
-
-
-
