@@ -92,12 +92,11 @@
         android:textStyle="bold"
         android:textColor="#988734"/>
 
-<!--    <Button-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="Use NIR Data."-->
-<!--        android:onClick="useNIR"-->
-<!--        android:textStyle="bold"/>-->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:id="@+id/imageView1"
+        android:src="@drawable/icon2"/>
 
     <LinearLayout
         android:orientation="horizontal"
@@ -137,7 +136,7 @@
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="80dp"
         android:text="No NIR Data Selected."
         android:id="@+id/checkNIR"
         android:textAlignment="center"
@@ -145,27 +144,27 @@
         android:textColor="#988734"/>
 
     <LinearLayout
-        android:gravity="bottom"
-        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentBottom="true">
+        android:layout_alignParentBottom="true"
+        android:gravity="bottom"
+        android:orientation="vertical">
         <Button
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:onClick="connectServer"
             android:text="Connect to Server &amp; Upload"
             android:textColor="#6CA22F"
             android:textStyle="bold" />
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Connection Status."
             android:id="@+id/responseText"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:text="Connection Status."
             android:textAlignment="center"
             android:textColor="#FF0000"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
     </LinearLayout>
 
 </LinearLayout>

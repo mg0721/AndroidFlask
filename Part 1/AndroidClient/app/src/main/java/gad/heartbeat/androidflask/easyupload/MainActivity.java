@@ -21,10 +21,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -172,7 +174,8 @@ public class MainActivity extends AppCompatActivity {
                     Bitmap bitmap = BitmapFactory.decodeFile(selectedImagesPaths.get(i), options);
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
                 } catch (Exception e) {
-                    responseText.setText("Please Make Sure the Selected File is an Image.");
+                    Log.d("FAIL", e.getMessage());
+                    responseText.setText("Please Make Sure the Selected File is an Image or This app has proper permissions.");
                     return;
                 }
                 byte[] byteArray = stream.toByteArray();
@@ -306,22 +309,52 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    String currentImagePath = null;
+    Uri uri = null;
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         try {
             if (requestCode == SELECT_MULTIPLE_IMAGES && resultCode == RESULT_OK && null != data) {
                 // When a single image is selected.
-                String currentImagePath;
+
                 selectedImagesPaths = new ArrayList<>();
                 TextView numSelectedImages = findViewById(R.id.numSelectedImages);
                 if (data.getData() != null) {
-                    Uri uri = data.getData();
+//                    Uri uri = data.getData();
+                    uri = data.getData();
                     currentImagePath = getPath(getApplicationContext(), uri);
                     Log.d("ImageDetails", "Single Image URI : " + uri);
                     Log.d("ImageDetails", "Single Image Path : " + currentImagePath);
                     selectedImagesPaths.add(currentImagePath);
                     imagesSelected = true;
                     numSelectedImages.setText("Number of Selected Images : " + selectedImagesPaths.size());
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            BitmapFactory.Options options = new BitmapFactory.Options();
+                            options.inPreferredConfig = Bitmap.Config.RGB_565;
+                            Bitmap bitmap = BitmapFactory.decodeFile(currentImagePath, options);
+//                            Bitmap bitmap = MediaStore.Images.Media.getBitmap(getApplicationContext().getContentResolver(), uri);
+//                            Bitmap myBitmap = BitmapFactory.decodeFile(currentImagePath);
+                            int width = bitmap.getWidth();
+                            int height = bitmap.getHeight();
+                            Log.d("ImageDetails", "width : " + width);
+                            Log.d("ImageDetails", "height : " + height);
+//                            Bitmap new = Bitmap.createBitmap(src, x, y, cw, ch);
+                            int patch_size = 0;
+                            if (width < height) {
+                                patch_size = width;
+                            }
+                            else {
+                                patch_size = height;
+                            }
+
+                            Bitmap new_bitmap = Bitmap.createBitmap(bitmap, width - patch_size, height - patch_size, patch_size, patch_size);
+                            ImageView myImage = (ImageView) findViewById(R.id.imageView1);
+                            myImage.setImageBitmap(new_bitmap);
+//                            myImage.setImageURI(uri);
+                        }
+                    });
                 } else {
                     // When multiple images are selected.
                     // Thanks tp Laith Mihyar for this Stackoverflow answer : https://stackoverflow.com/a/34047251/5426539
@@ -330,8 +363,8 @@ public class MainActivity extends AppCompatActivity {
                         for (int i = 0; i < clipData.getItemCount(); i++) {
 
                             ClipData.Item item = clipData.getItemAt(i);
-                            Uri uri = item.getUri();
-
+//                            Uri uri = item.getUri();
+                            uri = item.getUri();
                             currentImagePath = getPath(getApplicationContext(), uri);
                             selectedImagesPaths.add(currentImagePath);
                             Log.d("ImageDetails", "Image URI " + i + " = " + uri);
@@ -344,6 +377,7 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, "You haven't Picked any Image.", Toast.LENGTH_LONG).show();
             }
+
             Toast.makeText(getApplicationContext(), selectedImagesPaths.size() + " Image(s) Selected.", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
             Toast.makeText(this, "Something Went Wrong.", Toast.LENGTH_LONG).show();
