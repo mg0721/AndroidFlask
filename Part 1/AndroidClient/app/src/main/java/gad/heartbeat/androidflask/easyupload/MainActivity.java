@@ -277,6 +277,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void useNirButton(View v) {
+/*
         int buttom_num = -1;
         TextView checkNIR = findViewById(R.id.checkNIR);
         switch (v.getId()) {
@@ -307,6 +308,8 @@ public class MainActivity extends AppCompatActivity {
             checkNIR.setText("No NIR Data Selected.");
             setFlag(buttom_num, false);
         }
+
+ */
     }
 
     String currentImagePath = null;
